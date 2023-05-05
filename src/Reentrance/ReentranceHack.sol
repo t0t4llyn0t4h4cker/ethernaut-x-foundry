@@ -43,9 +43,7 @@ contract ReentranceHack {
         if (keepRecursing) {
             // can only withdraw at most our initial balance per withdraw call
             uint256 toWithdraw =
-                initialDeposit < challengeTotalRemainingBalance
-                    ? initialDeposit
-                    : challengeTotalRemainingBalance;
+                initialDeposit < challengeTotalRemainingBalance ? initialDeposit : challengeTotalRemainingBalance;
             challenge.withdraw(toWithdraw);
         }
     }

