@@ -1,13 +1,10 @@
 pragma solidity ^0.8.19;
 
-import "ds-test/test.sol";
+import "forge-std/Test.sol";
 import "../../../src/call-attacks/call-attacks-1/RestrictedOwner.sol";
 import "../../../src/call-attacks/call-attacks-1/UnrestrictedOwner.sol";
-// import "../../src/Ethernaut.sol";
-import "../../../src/test/utils/vm.sol";
 
-contract Call1Test is DSTest {
-    Vm vm = Vm(address(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D));
+contract Call1Test is Test {
     RestrictedOwner restrictedOwner;
     UnrestrictedOwner unrestrictedOwner;
     address deployerAddress = address(100);
